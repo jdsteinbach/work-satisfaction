@@ -10,10 +10,13 @@
   },
   "dependencies": {
     "airtable": "^0.11.6",
+    "bootstrap-icons": "^1.10.3",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
     "sass": "^1.58.0",
-    "vue": "^3.2.45"
+    "vite-svg-loader": "^4.0.0",
+    "vue": "^3.2.45",
+    "vue3-popper": "^1.5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",

@@ -1,8 +1,11 @@
 <script setup>
-import { computed } from 'vue';
-import { formatQuarter } from '@/utils/dates';
-import { calculateWeightedScore } from '@/utils/weights';
-import { formatQuarterDescriptive } from '../utils/dates';
+import { computed } from "vue";
+import Popper from "vue3-popper";
+
+import { formatQuarter, formatYear } from "@/utils/dates";
+import { calculateWeightedScore } from "@/utils/weights";
+import { formatQuarterDescriptive } from "../utils/dates";
+import SatisfactionRecord from "./SatisfactionRecord.vue";
 
 const props = defineProps({ record: Object });
 
@@ -15,20 +18,39 @@ const rowStart = computed(() => {
 
 <template>
   <div class="column">
-    <output :id="record.fields.Date" class="column__bar" :style="{
-      '--row-start': rowStart
-    }" :aria-label="`Satisfaction score for ${formatQuarterDescriptive(record.fields.Date)}`">
-      {{ weightedScore }}
-    </output>
-    <label :for="record.fields.Date" class="column__label">
-      {{ formatQuarter(record.fields.Date) }}
-    </label>
+    <div
+      class="column__bar"
+      :style="{
+        '--row-start': rowStart,
+      }"
+    >
+      <output
+        :id="record.fields.Date"
+        :aria-label="`Satisfaction score for ${formatQuarterDescriptive(
+          record.fields.Date
+        )}`"
+      >
+        {{ weightedScore }}
+      </output>
+    </div>
+
+    <div class="column__label">
+      <Popper arrow hover placement="top" offset-distance="0" show>
+        <label :for="record.fields.Date" class="column__label__text">
+          {{ formatQuarter(record.fields.Date) }}<br />
+          {{ formatYear(record.fields.Date) }}
+        </label>
+        <template #content>
+          <SatisfactionRecord :record="record" />
+        </template>
+      </Popper>
+    </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .column {
-  --row-height: .33vh;
+  --row-height: 0.3vh;
 
   display: grid;
   grid-template-columns: 1rem 1fr 1rem;
@@ -36,7 +58,7 @@ const rowStart = computed(() => {
 
   &::before {
     content: "";
-    border: 1px solid var(--color-fg);
+    border: 1px solid var(--color-fg-fade);
     border-width: 1px 0;
     grid-column-start: 1;
     grid-column-end: 4;
@@ -46,7 +68,7 @@ const rowStart = computed(() => {
 
   &::after {
     content: "";
-    border: 1px solid var(--color-fg);
+    border: 1px solid var(--color-fg-fade);
     border-width: 1px 0;
     grid-column-start: 1;
     grid-column-end: 4;
@@ -68,11 +90,22 @@ const rowStart = computed(() => {
 }
 
 .column__label {
-  padding: 0.25rem 1rem;
+  display: flex;
+  justify-content: stretch;
   grid-column-start: 1;
   grid-column-end: 4;
   grid-row-start: 101;
   grid-row-end: 102;
+
+  > * {
+    flex-grow: 1;
+  }
+}
+
+.column__label__text {
+  display: block;
+  padding: 0.25rem 1rem;
+  text-align: center;
   border-top: 1px solid var(--color-fg);
 }
 </style>
