@@ -35,7 +35,7 @@ const rowStart = computed(() => {
     </div>
 
     <div class="column__label">
-      <Popper arrow hover placement="top" offset-distance="0" show>
+      <Popper arrow hover placement="top" offset-distance="0">
         <label :for="record.fields.Date" class="column__label__text">
           {{ formatQuarter(record.fields.Date) }}<br />
           {{ formatYear(record.fields.Date) }}
@@ -85,7 +85,7 @@ const rowStart = computed(() => {
   text-align: center;
   border-radius: 0.125rem;
   background-color: var(--bar-color, var(--color-fg));
-  color: var(--color-bg);
+  color: var(--color-fg);
   opacity: 0.8;
 }
 
