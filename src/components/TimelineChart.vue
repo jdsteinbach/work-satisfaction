@@ -98,7 +98,7 @@ const columnCount = computed(() => chartColumns.value.length);
   overflow-x: auto;
   scroll-snap-type: inline mandatory;
 
-  > * {
+    > * {
     scroll-snap-align: start;
   }
 }
