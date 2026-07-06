@@ -7,11 +7,28 @@ import { calculateWeightedScore } from "@/utils/weights";
 import { formatQuarterDescriptive } from "../utils/dates";
 import SatisfactionRecord from "./SatisfactionRecord.vue";
 
-const props = defineProps({ record: Object });
+const props = defineProps({
+  record: {
+    type: Object,
+    default: null,
+  },
+  quarterDate: {
+    type: [String, Date],
+    required: true,
+  },
+});
 
-const weightedScore = computed(() => calculateWeightedScore(props.record));
+const weightedScore = computed(() =>
+  props.record ? calculateWeightedScore(props.record) : null
+);
+
+const labelDate = computed(() => props.record?.fields.Date || props.quarterDate);
 
 const rowStart = computed(() => {
+  if (!props.record) {
+    return null;
+  }
+
   return 101 - Math.round((weightedScore.value / 5) * 100);
 });
 </script>
@@ -19,6 +36,7 @@ const rowStart = computed(() => {
 <template>
   <div class="column">
     <div
+      v-if="record"
       class="column__bar"
       :style="{
         '--row-start': rowStart,
@@ -35,7 +53,7 @@ const rowStart = computed(() => {
     </div>
 
     <div class="column__label">
-      <Popper arrow hover placement="top" offset-distance="0">
+      <Popper v-if="record" arrow hover placement="top" offset-distance="0">
         <label :for="record.fields.Date" class="column__label__text">
           {{ formatQuarter(record.fields.Date) }}<br />
           {{ formatYear(record.fields.Date) }}
@@ -44,6 +62,17 @@ const rowStart = computed(() => {
           <SatisfactionRecord :record="record" />
         </template>
       </Popper>
+
+      <label
+        v-else
+        class="column__label__text column__label__text--empty"
+        :aria-label="`No response recorded for ${formatQuarterDescriptive(
+          labelDate
+        )}`"
+      >
+        {{ formatQuarter(labelDate) }}<br />
+        {{ formatYear(labelDate) }}
+      </label>
     </div>
   </div>
 </template>
@@ -107,5 +136,9 @@ const rowStart = computed(() => {
   padding: 0.25rem 1rem;
   text-align: center;
   border-top: 1px solid var(--color-fg);
+}
+
+.column__label__text--empty {
+  opacity: 0.5;
 }
 </style>

@@ -2,22 +2,88 @@
 import { computed } from "vue";
 import TimelineChartColumn from "@/components/TimelineChartColumn.vue";
 
-const props = defineProps({ responses: Array });
+const props = defineProps({
+  responses: {
+    type: Array,
+    default: () => [],
+  },
+});
+
+const getQuarterStartDate = (dateInput) => {
+  const date = new Date(dateInput);
+  const quarterStartMonth = Math.floor(date.getMonth() / 3) * 3;
+
+  return new Date(date.getFullYear(), quarterStartMonth, 1);
+};
+
+const getQuarterKey = (dateInput) => {
+  const date = new Date(dateInput);
+  const quarter = Math.floor(date.getMonth() / 3) + 1;
+
+  return `${date.getFullYear()}-Q${quarter}`;
+};
+
+const addQuarter = (dateInput) => {
+  const date = new Date(dateInput);
+
+  return new Date(date.getFullYear(), date.getMonth() + 3, 1);
+};
 
 const sortedResponses = computed(() =>
-  props.responses.sort((a, b) => (a.fields.Date < b.fields.Date ? 1 : -1))
+  [...props.responses].sort((a, b) =>
+    a.fields.Date < b.fields.Date ? 1 : -1
+  )
 );
 
-const columnCount = computed(() => props.responses.length);
+const chartColumns = computed(() => {
+  if (!sortedResponses.value.length) {
+    return [];
+  }
+
+  const recordsByQuarter = new Map();
+
+  for (const record of sortedResponses.value) {
+    const quarterKey = getQuarterKey(record.fields.Date);
+
+    if (!recordsByQuarter.has(quarterKey)) {
+      recordsByQuarter.set(quarterKey, record);
+    }
+  }
+
+  const oldestRecordDate = sortedResponses.value.at(-1).fields.Date;
+  const oldestQuarterDate = getQuarterStartDate(oldestRecordDate);
+  const currentQuarterDate = getQuarterStartDate(new Date());
+  const quarterDates = [];
+
+  for (
+    let cursorDate = oldestQuarterDate;
+    cursorDate <= currentQuarterDate;
+    cursorDate = addQuarter(cursorDate)
+  ) {
+    quarterDates.push(new Date(cursorDate));
+  }
+
+  return quarterDates.reverse().map((quarterDate) => {
+    const quarterKey = getQuarterKey(quarterDate);
+
+    return {
+      key: quarterKey,
+      quarterDate,
+      record: recordsByQuarter.get(quarterKey) || null,
+    };
+  });
+});
+
+const columnCount = computed(() => chartColumns.value.length);
 </script>
 
 <template>
-  <div class="chart">
+  <div class="chart" :style="{ '--column-count': columnCount }">
     <TimelineChartColumn
-      v-for="record in sortedResponses"
-      :key="record"
-      :record="record"
-      :style="{ '--column-count': columnCount }"
+      v-for="column in chartColumns"
+      :key="column.key"
+      :record="column.record"
+      :quarter-date="column.quarterDate"
     />
   </div>
 </template>

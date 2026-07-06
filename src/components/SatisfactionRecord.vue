@@ -69,6 +69,7 @@ const stars = (score) => {
             :is="icon(k, v)"
             :class="iconClass(k, v)"
             :aria-label="iconDescription(k, v)"
+            :title="iconDescription(k, v)"
           />
         </span>
         {{ k }}
