@@ -91,9 +91,15 @@ const columnCount = computed(() => chartColumns.value.length);
 <style lang="scss" scoped>
 .chart {
   display: grid;
-  grid-template-columns: repeat(var(--column-count, 1), 1fr);
+  grid-template-columns: repeat(var(--column-count, 1), minmax(8ch, 1fr));
   column-gap: 0.125rem;
   border: 0.125rem solid currentColor;
   border-radius: 0.25rem;
+  overflow-x: auto;
+  scroll-snap-type: inline mandatory;
+
+  > * {
+    scroll-snap-align: start;
+  }
 }
 </style>
